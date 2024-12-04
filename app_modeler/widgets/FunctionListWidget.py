@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QTableView,QVBoxLayout
+from PySide6.QtWidgets import QWidget, QTableView, QVBoxLayout, QHeaderView
 from PySide6.QtCore import Signal, QModelIndex, Qt
 from typing import List
 import logging
@@ -16,9 +16,21 @@ class FunctionListWidget(QWidget):
         self.model = FunctionCallModel()
         self.view = QTableView()
         self.view.setModel(self.model)
-        self.view.horizontalHeader().setStretchLastSection(True)
         self.view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
-        self.view.setEditTriggers(QTableView.DoubleClicked | QTableView.SelectedClicked | QTableView.EditKeyPressed)
+        self.view.setEditTriggers(QTableView.EditTrigger.DoubleClicked |
+                                  QTableView.EditTrigger.SelectedClicked |
+                                  QTableView.EditTrigger.EditKeyPressed)
+
+        # Extend the last column to fill the remaining table width
+        header = self.view.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)  # Default mode for all columns
+        header.setSectionResizeMode(self.model.columnCount() - 1, QHeaderView.Stretch)  # Last column stretches
+
+        # Connect model signals to adjust column widths dynamically
+        self.model.dataChanged.connect(self.view.resizeColumnsToContents)
+        self.model.layoutChanged.connect(self.view.resizeColumnsToContents)
+        self.model.rowsInserted.connect(self.view.resizeColumnsToContents)
+        self.model.layoutResetFinished.connect(self.view.resizeColumnsToContents)
 
         self._allow_execute_behaviour = allow_execute_behaviour
 
@@ -63,13 +75,16 @@ if __name__ == "__main__":
 
     app = QApplication([])
     function_list = [
-        FunctionCall(function_name="click_tab1", args='"arg1"', kwargs=''),
-        FunctionCall(function_name="click_tab2", args='"arg1"', kwargs='key1="value1"')
+        FunctionCall(view='view1', function_name="click_tab1", args='"arg1"', kwargs=''),
+        FunctionCall(view='view18973498573457346', function_name="click_tab2", args='"arg1"', kwargs='key1="value1"')
     ]
     print([str(func) for func in function_list])
     widget = FunctionListWidget()
-    widget.update_items(function_list)
     widget.setMinimumSize(600, 400)
+
+    widget.update_items(function_list)
+    widget.model.append(FunctionCall(view='view3', function_name="click_tab3273648962387946", args='"arg1"', kwargs='key'))
+
     widget.show()
     app.exec()
     print('after')

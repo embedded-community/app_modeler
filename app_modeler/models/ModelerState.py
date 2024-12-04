@@ -89,14 +89,22 @@ class ModelerState(QObject):
     def on_connect(self, start_options: StartOptions):
         self.worker_thread = WorkerThread(self.do_connect, start_options)
         self.worker_thread.busy.connect(self.signals.processing.emit)
-        self.worker_thread.result_signal.connect(lambda _: self.signals.connected.emit())
+        self.worker_thread.result_signal.connect(self.on_connected)
         self.worker_thread.error_signal.connect(lambda e: self.error_signal.emit(str(e)))
         self.worker_thread.start()
 
-    def do_connect(self, start_options: StartOptions):
+    def do_connect(self, start_options: StartOptions) -> bytes:
         self.driver = create_driver(start_options)
         assert start_options.app_settings.ai_service == 'openai', "Only OpenAI is supported"
-        self.ai_assistant = OpenAIAssistant(start_options.app_settings.token)
+        token = start_options.app_settings.token
+        base_url = start_options.app_settings.base_url
+        model = start_options.app_settings.model
+        self.ai_assistant = OpenAIAssistant(api_key=token, base_url=base_url, model=model)
+        return self.driver.get_screenshot_as_png()
+
+    def on_connected(self, screenshot: bytes):
+        self.signals.screenshot.emit(screenshot)
+        self.signals.connected.emit()
 
     @wait_for_thread
     def on_disconnect(self):

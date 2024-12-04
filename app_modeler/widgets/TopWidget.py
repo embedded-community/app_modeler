@@ -40,6 +40,7 @@ class TopWidget(SettingsWidget):
 
         self.spend_label = QLabel("Spend tokens")
         self.spend_value = QLabel("0")
+        self.spend_value.setToolTip("Used OpenAI tokens")
 
         self.connect_button = QPushButton("Connect")
         self.connect_button.clicked.connect(self.on_connect)

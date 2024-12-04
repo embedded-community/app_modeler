@@ -3,8 +3,7 @@ import abc
 import openai
 import logging
 from pydantic import BaseModel
-from typing import List, Dict, Any
-
+from typing import List, Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -13,17 +12,20 @@ class AiModel(BaseModel, abc.ABC):
 
 
 class OpenAIAssistant:
-    def __init__(self, token: str):
+    def __init__(self, api_key: str, base_url: Optional[str] = None, model: Optional[str] = None):
         """
         Initialize the OpenAIAssistant with an API token.
-        :param token: OpenAI API token.
+        :param api_key: OpenAI API mey.
         """
-        self.client = openai.OpenAI(api_key=token)
-        self._model = "gpt-4o-mini"
+        self.client = openai.OpenAI(api_key=api_key, base_url=base_url)
+        self._default_model = model or "gpt-4o-mini"
         self.conversation_history: Dict[str, List[Dict[str, str]]] = {}
         self.used_tokens = 0
 
-    def ask(self, prompt: str, response_format: AiModel) -> AiModel:
+    def ask(self,
+            prompt: str,
+            response_format: AiModel,
+            model: Optional[str] = None) -> AiModel:
         """
         Ask the assistant a question, and store the prompt and response in memory.
         :param prompt: The prompt/question to ask the assistant.
@@ -35,7 +37,7 @@ class OpenAIAssistant:
         logger.debug(f"prompt: {full_prompt}, full_prompt: {full_prompt}")
 
         completion = self.client.beta.chat.completions.parse(
-            model=self._model,
+            model=model or self._default_model,
             messages=[{"role": "user", "content": full_prompt}],
             response_format=response_format
         )
@@ -53,7 +55,11 @@ class OpenAIAssistant:
 
         return response
 
-    def upload_image_and_prompt(self, prompt: str, base64_image: str, response_format: any) -> Dict[str, Any]:
+    def upload_image_and_prompt(self,
+                                prompt: str,
+                                base64_image: str,
+                                response_format: any,
+                                model: Optional[str] = None) -> Dict[str, Any]:
         """
         Upload a base64 encoded PNG image along with a prompt to the assistant.
         :param prompt: The prompt/question to ask the assistant.
@@ -66,7 +72,7 @@ class OpenAIAssistant:
         logger.debug(f"prompt: {prompt}, full_prompt: {full_prompt}")
 
         completion = self.client.beta.chat.completions.parse(
-            model="gpt-4o-mini",
+            model=model or self._default_model,
             messages=[
                 {
                     "role": "user",

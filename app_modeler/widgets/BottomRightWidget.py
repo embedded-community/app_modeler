@@ -36,7 +36,7 @@ class BottomRightWidget(SettingsWidget):
         self.api_list = FunctionListWidget()
         self.choices_layout.addWidget(self.api_list)
 
-        self.history_list = FunctionListWidget()
+        self.history_list = FunctionListWidget(allow_execute_behaviour=False)
         self.history_layout.addWidget(self.history_list)
 
         operate_box = QGroupBox()

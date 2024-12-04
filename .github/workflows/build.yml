@@ -1,0 +1,78 @@
+name: Build and Lint Matrix Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  release:
+    types:
+      - published
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-latest]
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Set up Python environment
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]  # Install with dev dependencies
+
+      # Run Ruff Linter
+      - name: Run Ruff Linter
+        run: |
+          pip install ruff
+          ruff check .
+
+      # Build Application with PyInstaller
+      - name: Build with PyInstaller
+        run: |
+          pip install pyinstaller
+          pyinstaller app_modeler.spec
+
+      # Upload Dist Files as Artifacts
+      - name: Upload Dist Files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.os }}
+          path: dist/
+
+  upload-release:
+    if: github.event_name == 'release' && startsWith(github.event.release.tag_name, 'release-')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Download Artifacts from All OSes
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ matrix.os }}
+          path: ./dist-${{ matrix.os }}
+
+      # Upload Build Files to Release
+      - name: Upload Release Assets
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.event.release.tag_name }}
+          file: ./dist-${{ matrix.os }}/**
+          overwrite: true

@@ -1,6 +1,5 @@
 from appium.webdriver.webdriver import WebDriver
 from appium.webdriver.common.appiumby import AppiumBy
-from selenium.webdriver import Keys
 from selenium.webdriver.remote.webelement import WebElement
 from typing import Tuple
 

@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, Signal, QModelIndex, QAbstractTableModel, QObject
+from PySide6.QtCore import Qt, QModelIndex, QAbstractTableModel, QObject
 from typing import List, Any
 
 from app_modeler.models.FunctionCall import FunctionCall

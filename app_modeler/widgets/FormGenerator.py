@@ -5,7 +5,7 @@ import logging
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLineEdit, QCheckBox, QGroupBox,
-    QFormLayout, QScrollArea, QHBoxLayout, QTextEdit, QComboBox, QSizePolicy
+    QFormLayout, QScrollArea, QHBoxLayout, QTextEdit, QComboBox
 )
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtCore import Qt
@@ -134,23 +134,23 @@ class FormGenerator(QWidget):
         if actual_type is None:
             return None  # Unsupported type
 
-        if actual_type == str:
+        if actual_type is str:
             widget = QLineEdit()
-        elif actual_type == bool:
+        elif actual_type is bool:
             widget = QCheckBox()
         elif actual_type in [int, datetime.timedelta]:
             widget = QLineEdit()
             validator = QIntValidator()
             widget.setValidator(validator)
-        elif actual_type == float:
+        elif actual_type is float:
             widget = QLineEdit()
             validator = QDoubleValidator()
             validator.setNotation(QDoubleValidator.StandardNotation)
             widget.setValidator(validator)
-        elif actual_type == MultilineStr:
+        elif actual_type is MultilineStr:
             widget = QTextEdit()
             widget.setPlaceholderText("Multiline string")
-        elif actual_type == SecretStr:
+        elif actual_type is SecretStr:
             widget = QLineEdit()
             widget.setEchoMode(QLineEdit.EchoMode.Password)
         else:
@@ -196,7 +196,7 @@ class FormGenerator(QWidget):
                         value = int(text)
                     except ValueError:
                         value = 0
-                elif actual_type == float:
+                elif actual_type is float:
                     try:
                         value = float(text)
                     except ValueError:
@@ -257,7 +257,7 @@ class FormGenerator(QWidget):
                     value = int(text)
                 except ValueError:
                     value = 0
-            elif actual_type == float:
+            elif actual_type is float:
                 try:
                     value = float(text)
                 except ValueError:
@@ -285,7 +285,7 @@ class FormGenerator(QWidget):
                         values[name] = int(text)
                     except ValueError:
                         values[name] = 0
-                elif actual_type == float:
+                elif actual_type is float:
                     try:
                         values[name] = float(text)
                     except ValueError:

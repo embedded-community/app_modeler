@@ -1,4 +1,3 @@
-from typing import Optional
 import logging
 
 from PySide6.QtWidgets import QGridLayout, QLineEdit, QPushButton, QDialog, QLabel, QStyle, QFileDialog

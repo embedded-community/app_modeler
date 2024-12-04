@@ -2,7 +2,7 @@ from typing import Optional
 import logging
 
 from PySide6.QtWidgets import QWidget, QCheckBox, QLineEdit, QSlider, QComboBox
-from PySide6.QtCore import QSettings, Qt
+from PySide6.QtCore import QSettings
 
 logger = logging.getLogger(__name__)
 

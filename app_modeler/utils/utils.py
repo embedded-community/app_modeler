@@ -4,8 +4,7 @@ from pathlib import Path
 from importlib import import_module
 import logging
 import ast
-import json
-from typing import Any, Type
+from typing import Type
 import sys
 
 
@@ -146,7 +145,7 @@ def generate_class_json_from_code(source_code: str, class_name: str) -> dict:
             break
 
     if not class_node:
-        raise ValueError(f"Class '{class_name}' not found in the file '{filename}'.")
+        raise ValueError(f"Class '{class_name}' not given.")
 
     # Extract methods from the class
     methods = []
@@ -210,6 +209,6 @@ class MyView(AppiumInterface):
         driver = object()
         instance = load_module_from_code(module_code, 'MyView', driver)
         print(instance)
-    except Exception as e:
+    except Exception:
         logger.exception("An error occurred while loading the module.")
         # Handle exception as needed

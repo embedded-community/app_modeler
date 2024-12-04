@@ -1,6 +1,6 @@
 import logging
 
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QWidget, QTabWidget
+from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QWidget, QTabWidget
 
 from app_modeler.models.FunctionCall import FunctionCall
 from app_modeler.models.ModelerState import ModelerState

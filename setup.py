@@ -24,9 +24,10 @@ setup(
         'openai',
         'pydantic',
     ],
-    extra_requires={
+    extras_require={
         'dev': [
             'pyinstaller',
+            'ruff'
         ]
     },
     entry_points={

@@ -35,13 +35,11 @@ jobs:
       # Run Ruff Linter
       - name: Run Ruff Linter
         run: |
-          pip install ruff
           ruff check .
 
       # Build Application with PyInstaller
       - name: Build with PyInstaller
         run: |
-          pip install pyinstaller
           pyinstaller app_modeler.spec
 
       # Upload Dist Files as Artifacts

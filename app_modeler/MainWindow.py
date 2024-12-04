@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSplitter, QMessageBox
 
+from app_modeler.dialogs.ExceptionDialog import ExceptionDialog
 from app_modeler.dialogs.SettingsDIalog import SettingsDialog, AppSettingsWidget
 from app_modeler.models.AppSettings import AppSettings
 from app_modeler.models.ModelerState import ModelerState
@@ -25,7 +26,7 @@ class MainWindow(QMainWindow):
         AppSettingsWidget(self.state.settings, self._app_settings)
 
         menu = self.menuBar()
-        file_menu = menu.addMenu("File")  
+        file_menu = menu.addMenu("File")
         settings_action = file_menu.addAction("Settings...")
         settings_action.triggered.connect(self.on_settings)
         exit_action = file_menu.addAction("Exit")
@@ -61,9 +62,9 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
-    def show_error(self, error: str):
+    def show_error(self, error: Exception):
         # Show error dialog
-        QMessageBox.warning(  self, "Error", error)
+        ExceptionDialog(error, self).exec()
 
     def on_settings(self):
         dialog = SettingsDialog(self.state.settings, self._app_settings)

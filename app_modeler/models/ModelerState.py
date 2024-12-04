@@ -50,7 +50,7 @@ class CurrentView:
 
 
 class ModelerState(QObject):
-    error_signal = Signal(str)
+    error_signal = Signal(Exception)
     def __init__(self, app_settings: AppSettings):
         super().__init__()
         self._app_settings = app_settings
@@ -90,7 +90,8 @@ class ModelerState(QObject):
         self.worker_thread = WorkerThread(self.do_connect, start_options)
         self.worker_thread.busy.connect(self.signals.processing.emit)
         self.worker_thread.result_signal.connect(self.on_connected)
-        self.worker_thread.error_signal.connect(lambda e: self.error_signal.emit(str(e)))
+        self.worker_thread.error_signal.connect(self.on_error)
+        self.worker_thread.error_signal.connect(lambda _: self.signals.disconnected.emit())
         self.worker_thread.start()
 
     def do_connect(self, start_options: StartOptions) -> bytes:
@@ -127,12 +128,8 @@ class ModelerState(QObject):
     def on_error(self, error: Exception):
         if isinstance(error, (NoSuchDriverException, InvalidSessionIdException)):
             logger.error("Error: No driver found")
-            error_message = f"No driver found: {error}"
             self.signals.disconnected.emit()
-        else:
-            error_message = str(error)
-            logger.error(f"Error: {error}")
-        self.error_signal.emit(error_message)
+        self.error_signal.emit(error)
 
     def do_analyse(self):
         """ Analyse the current view

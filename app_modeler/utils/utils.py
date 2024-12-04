@@ -177,20 +177,13 @@ def generate_class_json_from_code(source_code: str, class_name: str) -> dict:
 
 def get_instance_methods(obj: object) -> [str]:
     cls = obj.__class__
-    method_names = [name for name, func in inspect.getmembers(cls, inspect.isfunction) if
-            func.__qualname__.startswith(cls.__name__ + '.')]
+    method_names = [name for name, func, arg in inspect.getmembers(cls, inspect.isfunction) if
+            func.__qualname__.startwith(cls.__name__ + '.')]
     # filter out all _* methods
-    method_names = [name for name in method_names if not name.startswith('_')]
+    method_names = [name for name in method_names]
     return method_names
 
 if __name__ == "__main__":
-    # Generate JSON-like dictionary for ExampleClass
-    #class_json = generate_class_json_from_file('/Users/jussi.vatjus-anttila/git/github/jouzen/tti_sandbox/app_model_generator/views/View1.py')
-
-    # Convert to JSON string (optional, for display)
-    #class_json_str = json.dumps(class_json, indent=4)
-    #print(class_json_str)
-
     module_code = """
 from app_modeler.appium_helpers.AppiumInterface import AppiumInterface
 

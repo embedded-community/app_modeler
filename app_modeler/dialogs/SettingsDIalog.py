@@ -27,7 +27,7 @@ class SettingsDialog(QDialog):
     def __init__(self, settings: QSettings, app_settings: AppSettings):
         super().__init__()
         self.setMinimumSize(600, 400)
-        self.setWindowTitle("App Config")
+        self.setWindowTitle("App Settings")
         self.settings = settings
         self.app_settings = app_settings
         self.setup_ui()

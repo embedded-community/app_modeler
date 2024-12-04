@@ -1,4 +1,6 @@
 import textwrap
+from typing import Optional
+
 from PySide6.QtCore import QObject
 
 from app_modeler.widgets.FormGenerator import MultilineStr, SecretStr
@@ -7,8 +9,11 @@ from app_modeler.widgets.FormGenerator import MultilineStr, SecretStr
 class AppSettings(QObject):
     def __init__(self):
         super().__init__()
-        self._ai_service: str = "openai"
+        self._appium_server: str = None
+        #self._ai_service: str = "openai"
         self._token: SecretStr = SecretStr("")
+        self._base_url: Optional[str] = None
+        self._model: Optional[str] = 'gpt-4o-mini'
 
         self._class_generator_prompt: MultilineStr = MultilineStr(textwrap.dedent("""
             Generate a Python class {class_name} with best practises, inheriting from AppiumInterface for an Appium-based view model.
@@ -42,7 +47,7 @@ class AppSettings(QObject):
             Include the following imports:
             from appium.webdriver.common.appiumby import AppiumBy
             from app_modeler.appium_helpers.AppiumInterface import AppiumInterface
-            """))
+            """).strip())
 
         self._tester_prompt = MultilineStr(textwrap.dedent("""
                 Be as tester, who test UI application happy scenario and
@@ -53,17 +58,27 @@ class AppSettings(QObject):
                 Do not include anything else in response.
                 Previous steps was: {previous_steps}, do not repeat unless it's only option.
                 please review the following class content: {class_docstring}
-              """))
+              """).strip())
+
+    #@property
+    #def ai_service(self) -> str:
+    #    """ Get the AI service, default is openai """
+    #    return self._ai_service
+
+    #@ai_service.setter
+    #def ai_service(self, value: str):
+    #    """ Set the AI service """
+    #    self._ai_service = value
 
     @property
-    def ai_service(self) -> str:
-        """ Get the AI service, default is openai """
-        return self._ai_service
+    def base_url(self) -> Optional[str]:
+        """ Get the base url """
+        return self._base_url
 
-    @ai_service.setter
-    def ai_service(self, value: str):
-        """ Set the AI service """
-        self._ai_service = value
+    @base_url.setter
+    def base_url(self, value: Optional[str]):
+        """ Set the base url """
+        self._base_url = value
 
     @property
     def token(self) -> SecretStr:
@@ -75,11 +90,23 @@ class AppSettings(QObject):
         """ Set the openapi toke secret """
         self._token = value
 
+    @property
+    def model(self) -> Optional[str]:
+        """ Get the model. Default is gpt-4o-mini """
+        return self._model
+
+    @model.setter
+    def model(self, value: Optional[str]):
+        """ Set the model """
+        self._model = value
+
     def update(self, settings: 'AppSettings'):
         """ Update the settings """
-        self.appium_server = settings.appium_server
-        self.ai_service = settings.ai_service
+        self._appium_server = settings._appium_server
+        #self.ai_service = settings.ai_service
         self.token = settings.token
+        self.base_url = settings.base_url
+        self.model = settings.model
         self.class_generator_prompt = settings.class_generator_prompt
 
     @property

@@ -8,11 +8,12 @@ from app_modeler.widgets.BottomMiddleWidget import BottomMiddleWidget
 from app_modeler.widgets.TopWidget import TopWidget
 from app_modeler.widgets.BottomLeftWidget import BottomLeftWidget
 from app_modeler.widgets.BottomRightWidget import BottomRightWidget
+from app_modeler import __version__
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("App modeler")
+        self.setWindowTitle(f"App modeler v{__version__}")
 
         self._app_settings = AppSettings()
         self.state = ModelerState(self._app_settings)
@@ -24,7 +25,7 @@ class MainWindow(QMainWindow):
         AppSettingsWidget(self.state.settings, self._app_settings)
 
         menu = self.menuBar()
-        file_menu = menu.addMenu("File")
+        file_menu = menu.addMenu("File")  
         settings_action = file_menu.addAction("Settings...")
         settings_action.triggered.connect(self.on_settings)
         exit_action = file_menu.addAction("Exit")

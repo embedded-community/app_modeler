@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSplitter, QMessageBox
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSplitter
 
 from app_modeler.dialogs.ExceptionDialog import ExceptionDialog
 from app_modeler.dialogs.SettingsDIalog import SettingsDialog, AppSettingsWidget

@@ -30,7 +30,7 @@ class BottomRightWidget(SettingsWidget):
         self.history.setLayout(self.history_layout)
 
         tab.addTab(self.choices, "Choices")
-        tab.addTab(self.history, "History")
+        tab.addTab(self.history, "Call History")
         layout.addWidget(tab)
 
         self.api_list = FunctionListWidget()
@@ -68,9 +68,8 @@ class BottomRightWidget(SettingsWidget):
 
     def on_execute(self, function_call: FunctionCall):
         logger.debug(f"Executing function: {function_call}")
-        self.state.signals.execute.emit(str(function_call))
+        self.state.signals.execute.emit(function_call)
         self.history_list.append(function_call)
-        #self.api_list.clear()
 
     def update_list(self):
         view = self.state.current_view

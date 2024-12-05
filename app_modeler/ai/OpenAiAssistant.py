@@ -67,6 +67,7 @@ class OpenAIAssistant:
         :param response_format: Response class to ensure the response format.
         :return: The response from the assistant in JSON format.
         """
+
         full_prompt = self._create_full_prompt(prompt)
 
         logger.debug(f"prompt: {prompt}, full_prompt: {full_prompt}")

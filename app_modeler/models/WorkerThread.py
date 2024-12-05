@@ -27,10 +27,10 @@ class WorkerThread(QThread):
             result = self.function(*self.args, **self.kwargs)
             # Emit the result
             self.result_signal.emit(result)
-        except Exception as e:
+        except Exception as error:
             # Emit any exceptions as strings
-            logger.warning(f"Error in WorkerThread: {e}", stack_info=True, stacklevel=10)
-            self.error_signal.emit(e)
+            logger.warning(f"Error in WorkerThread: {error}", stack_info=True, stacklevel=10, exc_info=True)
+            self.error_signal.emit(error)
         finally:
             # Emit a finished signal
             self.finished_signal.emit()

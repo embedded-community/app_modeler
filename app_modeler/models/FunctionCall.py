@@ -1,4 +1,6 @@
 import logging
+from typing import Optional
+
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -13,6 +15,8 @@ class NextFunctionList(BaseModel):
     candidates: list[NextFunction]
 
 class FunctionCall(NextFunction):
+    return_value: Optional[str] = None
+    error: Optional[object] = None
 
     def get_args(self) -> tuple:
         out = ()
@@ -45,17 +49,24 @@ class FunctionCall(NextFunction):
             logger.info("No next step available")
             raise StopIteration('No next step available')
         # select the right call
-        if self.args and self.kwargs:
-            return next_func(*self.get_args(), **self.get_kwargs())
-        if self.args:
-            return next_func(*self.get_args())
-        if self.kwargs:
-            return next_func(**self.get_kwargs())
-        next_func()
+        try:
+            if self.args and self.kwargs:
+                return_value = next_func(*self.get_args(), **self.get_kwargs())
+            elif self.args:
+                return_value = next_func(*self.get_args())
+            elif self.kwargs:
+                return_value = next_func(**self.get_kwargs())
+            else:
+                return_value = next_func()
+            self.return_value = return_value
+            return return_value
+        except Exception as error:
+            self.error = error
+            raise error
 
 
 if __name__ == "__main__":
-    nf = NextFunction(view='view', function_name="click_tab1",
+    nf = FunctionCall(view='view', function_name="click_tab1",
                       args='"arg1", "arg2"', kwargs='key1="value1", key2="value2"')
     print(nf)
     print(nf.get_args())
@@ -64,4 +75,11 @@ if __name__ == "__main__":
     dump = nf.model_dump()
     print(dump)
     nf2 = NextFunction(**dump)
+
+    class View:
+        def click_tab1(self, *args, **kwargs):
+            print("click_tab1", args, kwargs)
+            return "click_tab1"
+    view = View()
+    nf.call(view)
     print(dump)

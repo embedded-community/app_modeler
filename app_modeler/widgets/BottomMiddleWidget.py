@@ -20,7 +20,6 @@ class BottomMiddleWidget(SettingsWidget):
         self.state.signals.elements_propose.connect(self.elements_json.setPlainText)
         self.state.signals.next_func_candidates.connect(self.on_next_func_candidates)
         self.auto_import_checkbox.stateChanged.connect(self.import_button.setDisabled)
-        #self.state.signals.execute.connect(self.on_execute)
         self.init_settings(state.settings)
 
     def _setup_ui(self):

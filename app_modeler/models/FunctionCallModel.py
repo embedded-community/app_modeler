@@ -80,6 +80,7 @@ class FunctionCallModel(QAbstractTableModel):
         self.endResetModel()
 
     def update_items(self, functions: List[FunctionCall]):
+        assert isinstance(functions, list), f"Expected list, got {type(functions)}"
         self.beginResetModel()
         self.functions = functions
         self.endResetModel()

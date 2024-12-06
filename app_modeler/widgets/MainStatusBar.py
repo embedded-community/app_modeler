@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QStatusBar, QMenu, QLabel, QProgressBar, QToolButton, QStyle, QDialog, QFrame
+from PySide6.QtWidgets import QStatusBar, QMenu, QLabel, QToolButton, QStyle, QDialog, QFrame
 from PySide6.QtGui import QIcon, QAction, Qt, QPixmap, QPainter, QColor
 from selenium.webdriver.common.options import BaseOptions
 
@@ -54,6 +54,7 @@ class MainStatusBar(QStatusBar):
         self.connect_action = QAction("Connect", self)
         self.connection_menu.addAction(self.connect_action)
         self.disconnect_action = QAction("Disconnect", self)
+        self.disconnect_action.setEnabled(False)
         self.connection_menu.addAction(self.disconnect_action)
         self.connection_button.setMenu(self.connection_menu)
         self.connection_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)

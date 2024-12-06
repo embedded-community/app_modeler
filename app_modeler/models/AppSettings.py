@@ -55,6 +55,7 @@ class AppSettings(QObject):
                 Give multiple options, sorted by most likely to least likely.
                 Prefer button_press or textbox_enter methods.
                 Give only the method call as a string, e.g. click_tab1.
+                Do not include parenthesis ("()").
                 Do not include anything else in response.
                 Previous steps was: {previous_steps}, do not repeat unless it's only option.
                 please review the following class content: {class_docstring}

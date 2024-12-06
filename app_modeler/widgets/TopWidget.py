@@ -1,6 +1,6 @@
 import logging
 
-from PySide6.QtWidgets import QGridLayout, QLineEdit, QPushButton, QDialog, QLabel, QStyle, QFileDialog
+from PySide6.QtWidgets import QGridLayout, QPushButton, QDialog, QLabel
 from selenium.webdriver.common.options import BaseOptions
 
 from app_modeler.models.ModelerState import ModelerState

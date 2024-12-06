@@ -1,6 +1,3 @@
-import re
-from enum import Enum
-
 from PySide6.QtWidgets import QWidget, QTableView, QVBoxLayout, QHeaderView, QMenu
 from PySide6.QtCore import Signal, QModelIndex, Qt
 from typing import List

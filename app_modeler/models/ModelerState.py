@@ -198,18 +198,13 @@ class ModelerState(QObject):
         logger.debug(f'Execute function: {function_call}')
         self.worker_thread = WorkerThread(self.do_execute, function_call)
         self.worker_thread.busy.connect(self.signals.processing.emit)
-        self.worker_thread.result_signal.connect(self.on_executed)
+        self.worker_thread.result_signal.connect(self.signals.executed.emit)
         self.worker_thread.error_signal.connect(self.on_error)
         # append function call to call history even if it fails
         self.worker_thread.error_signal.connect(lambda _: self.session.call_history.append(function_call))
         self.worker_thread.start()
 
-    def on_executed(self, function_call: FunctionCall):
-        logger.debug('Function executed')
-        self.signals.executed.emit(function_call)
-
     def do_execute(self, function_call: FunctionCall) -> FunctionCall:
-        logger.debug(f'Do Executing function: {function_call}')
         function_call.call(self._current_view.view)
         return function_call
 

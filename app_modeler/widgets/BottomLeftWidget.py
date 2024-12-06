@@ -17,6 +17,7 @@ class BottomLeftWidget(SettingsWidget):
     def _connect_signals(self):
         self.state.signals.screenshot.connect(self.image.update_image)
         self.state.signals.connected.connect(self.on_connected)
+        self.state.signals.executed.connect(self.on_executed)
         self.state.signals.disconnected.connect(lambda :self.analyse_button.setEnabled(False))
         self.auto_analyse_checkbox.stateChanged.connect(self.analyse_button.setDisabled)
 
@@ -49,3 +50,7 @@ class BottomLeftWidget(SettingsWidget):
             self.state.signals.analyse.emit()
         else:
             self.analyse_button.setEnabled(True)
+
+    def on_executed(self, _):
+        if self.auto_analyse_checkbox.isChecked():
+            self.state.signals.analyse.emit()

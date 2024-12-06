@@ -3,8 +3,10 @@ from PySide6.QtGui import QIcon, QAction, Qt, QPixmap, QPainter, QColor
 from selenium.webdriver.common.options import BaseOptions
 
 from app_modeler.dialogs.AppiumConfigDialog import AppiumConfigDialog
+from app_modeler.models.AppSettings import AppSettings
 from app_modeler.models.ModelerState import ModelerState
 from app_modeler.models.StartOptions import StartOptions
+from app_modeler.utils.utils import get_icon
 from app_modeler.widgets.InfiniteProgressBar import InfiniteProgressBar
 
 
@@ -42,8 +44,7 @@ class MainStatusBar(QStatusBar):
         self.addWidget(create_separator())
         # Appium Config Button (no submenu)
         self.appium_button = QToolButton(self)
-        self.appium_button.setIcon(self.style().standardIcon(QStyle.SP_FileDialogDetailedView))
-        self.appium_button.setText("Appium")  # Replace with the path to your Appium icon
+        self.appium_button.setIcon(get_icon("appium.png"))
         self.appium_button.setToolTip("Appium Configuration")
         self.addWidget(self.appium_button)
 
@@ -127,8 +128,9 @@ class MainStatusBar(QStatusBar):
 
 
 if __name__ == '__main__':
-    from PySide6.QtWidgets import QApplication
+    from PySide6.QtWidgets import QApplication, QMainWindow
     app = QApplication([])
-    status_bar = MainStatusBar()
-    status_bar.show()
+    main = QMainWindow()
+    main.setStatusBar(MainStatusBar(ModelerState(AppSettings())))
+    main.show()
     app.exec()

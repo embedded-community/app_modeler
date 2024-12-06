@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import Optional
 
 from pydantic import BaseModel
@@ -10,6 +11,10 @@ class NextFunction(BaseModel):
     function_name: str
     args: str
     kwargs: str
+
+    def __post_init_post_parse__(self):
+        # cleanup if the function name has parenthesis
+        self.function_name = self.function_name.rstrip('()')
 
 class NextFunctionList(BaseModel):
     candidates: list[NextFunction]
@@ -30,10 +35,22 @@ class FunctionCall(NextFunction):
             key_value = arg.split('=')
             if len(key_value) == 2:
                 key, value = key_value
-                out[key.strip()] = value.strip().strip('"')
+                out[key.strip().strip('"')] = value.strip().strip('"')
             else:
                 logger.warning(f"Invalid key-value pair: {arg}")
         return out
+
+    def test(self):
+        if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', self.view):
+            raise ValueError(f"Invalid view name: {self.view}")
+        # function name can be a regex
+        if not(self.function_name.startswith('/') and self.function_name.endswith('/')):
+            if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', self.function_name):
+                raise ValueError(f"Invalid function name: {self.function_name}")
+        if self.args != '' and not re.match(r'^"([^"]*)"(?:,\s*"([^"]*)")*$', self.args):
+            raise ValueError(f"Invalid args: {self.args}")
+        if self.kwargs != '' and not re.match(r'^(?:"\w+"|\w+)=(?:"[^"]+"|\d+)(?:,\s*(?:"\w+"|\w+)=(?:"[^"]+"|\d+))*$', self.kwargs):
+            raise ValueError(f"Invalid kwargs: {self.kwargs}")
 
     def __str__(self):
         args = f"{self.args}"
@@ -67,8 +84,9 @@ class FunctionCall(NextFunction):
 
 if __name__ == "__main__":
     nf = FunctionCall(view='view', function_name="click_tab1",
-                      args='"arg1", "arg2"', kwargs='key1="value1", key2="value2"')
-    print(nf)
+                      args='"arg1", "arg2"', kwargs='key1="value1", key2="value2", "key3"="value3"')
+    nf.test()
+    print(str(nf))
     print(nf.get_args())
     print(nf.get_kwargs())
 

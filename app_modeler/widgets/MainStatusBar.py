@@ -30,7 +30,6 @@ class MainStatusBar(QStatusBar):
             separator.setFrameShape(QFrame.Shape.VLine)
             return separator
 
-
         self.addWidget(create_separator())
 
         self.status_label = QLabel("Status: Idle")
@@ -74,6 +73,8 @@ class MainStatusBar(QStatusBar):
         self.appium_button.clicked.connect(self.on_appium_clicked)
 
     def on_connect_clicked(self):
+        self.connect_action.setEnabled(False)
+        self.connection_button.setText("Connecting...")
         options = StartOptions(app_settings=self.state.app_settings,
                                appium_options=self.appium_options)
         self.state.signals.connect.emit(options)

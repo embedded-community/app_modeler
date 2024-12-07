@@ -3,10 +3,11 @@ import logging
 from pathlib import Path
 
 from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QWidget, QTabWidget, QPushButton, \
-    QFileDialog
+    QFileDialog, QMessageBox
 
 from app_modeler.models.FunctionCall import FunctionCall
 from app_modeler.models.ModelerState import ModelerState
+from app_modeler.utils.TestGenerator import TestGenerator
 from app_modeler.widgets.FunctionListWidget import FunctionListWidget
 from app_modeler.widgets.SettingsWidget import SettingsWidget
 
@@ -43,6 +44,7 @@ class BottomRightWidget(SettingsWidget):
         tab.addTab(self.history, "Call History")
         layout.addWidget(tab)
 
+        # Choices tab
         self.api_list = FunctionListWidget()
         self.choices_layout.addWidget(self.api_list)
         choises_operate_box = QGroupBox()
@@ -52,9 +54,7 @@ class BottomRightWidget(SettingsWidget):
         choises_operate_box.setLayout(choises_operate_layout)
         self.choices_layout.addWidget(choises_operate_box)
 
-        self.history_list = FunctionListWidget()
-        self.history_layout.addWidget(self.history_list)
-
+        # Inject tab
         self.inject_list = FunctionListWidget(allow_add_behaviour=True)
         self.inject_layout.addWidget(self.inject_list)
         inject_operate_box = QGroupBox()
@@ -66,6 +66,20 @@ class BottomRightWidget(SettingsWidget):
         inject_operate_box.setLayout(inject_operate_layout)
         self.inject_layout.addWidget(inject_operate_box)
 
+
+        # Call history tab
+        self.history_list = FunctionListWidget()
+        self.history_layout.addWidget(self.history_list)
+        history_operate_box = QGroupBox()
+        history_operate_layout = QHBoxLayout()
+        self.history_export_button = QPushButton("Export test scenario")
+        self.history_export_button.setToolTip("Export reproducible pytest test project")
+        history_operate_layout.addWidget(self.history_export_button)
+        history_operate_box.setLayout(history_operate_layout)
+        self.history_layout.addWidget(history_operate_box)
+
+
+        # Operate
         operate_box = QGroupBox()
         operate_layout = QHBoxLayout()
 
@@ -78,8 +92,8 @@ class BottomRightWidget(SettingsWidget):
         self.auto_select_checkbox.setToolTip("Execute the first function. Sorted by AI with given prompt")
         self.auto_select_checkbox.setObjectName("auto_select_checkbox")
         operate_layout.addWidget(self.auto_select_checkbox)
-
         operate_box.setLayout(operate_layout)
+
         layout.addWidget(operate_box)
 
         self.setLayout(layout)
@@ -89,10 +103,12 @@ class BottomRightWidget(SettingsWidget):
         self.state.signals.module_imported.connect(self.on_module_imported)
         self.state.signals.executed.connect(self.history_list.append)
         self.api_list.execute_signal.connect(self.on_execute)
-        self.injects_export_button.clicked.connect(self.on_export)
-        self.injects_import_button.clicked.connect(self.on_import)
+        self.injects_export_button.clicked.connect(self.on_injects_export)
+        self.injects_import_button.clicked.connect(self.on_injects_import)
         self.auto_inject_checkbox.stateChanged.connect(self.inject_now_button.setDisabled)
         self.inject_now_button.clicked.connect(self.on_inject)
+
+        self.history_export_button.clicked.connect(self.on_history_export)
 
 
     def on_next_function_candidates_available(self):
@@ -119,7 +135,7 @@ class BottomRightWidget(SettingsWidget):
         self.api_list.clear()
         self.api_list.update_items(view.function_candidates)
 
-    def on_export(self):
+    def on_injects_export(self):
         data_to_save = self.inject_list.to_dict()
         # open file dialog for save json file
         file_path, _ = QFileDialog.getSaveFileName(self, "Export JSON File", "", "JSON Files (*.json)")
@@ -145,7 +161,7 @@ class BottomRightWidget(SettingsWidget):
 
         self.inject_file(file_path)
 
-    def on_import(self):
+    def on_injects_import(self):
         # open file dialog for open json file
         file_path, _ = QFileDialog.getOpenFileName(self, "Import JSON File", "", "JSON Files (*.json)")
         if file_path:
@@ -160,3 +176,19 @@ class BottomRightWidget(SettingsWidget):
     def on_inject(self):
         logger.debug("Injecting functions")
         self.api_list.inject_many(self.inject_list)
+
+    def on_history_export(self):
+        # open file dialog for save json file
+        output_path = QFileDialog.getExistingDirectory(self, "Export History")
+        if not output_path:
+            return
+
+        tg = TestGenerator(start_options=self.state.appium_options,
+                      session=self.state.session)
+        files = tg.generate(output_path)
+        logger.info(f"Generated files: {files}")
+        names = [Path(f).name for f in files]
+
+        QMessageBox.information(self,
+                                "Export success",
+                                f"Exported to {output_path:}\n* {'\n* '.join(names)}")

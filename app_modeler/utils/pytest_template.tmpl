@@ -1,0 +1,24 @@
+import pytest
+from appium import webdriver
+from appium.webdriver.appium_connection import AppiumConnection
+from selenium.webdriver.remote.client_config import ClientConfig
+
+{driver_import}
+
+{view_imports}
+
+
+@pytest.fixture(scope="module")
+def appium_driver():
+    options = {appium_class}()
+    options.load_capabilities({capabilities})
+    client_config = ClientConfig(remote_server_addr="{appium_url}")
+    executor = AppiumConnection(client_config=client_config)
+    driver = webdriver.Remote(command_executor=executor, options=options)
+    try:
+       yield driver
+    finally:
+       driver.quit()
+
+def test_sample(appium_driver):
+{calls_code}

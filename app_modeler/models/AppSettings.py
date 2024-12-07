@@ -9,7 +9,6 @@ from app_modeler.widgets.FormGenerator import MultilineStr, SecretStr
 class AppSettings(QObject):
     def __init__(self):
         super().__init__()
-        self._appium_server: str = None
         #self._ai_service: str = "openai"
         self._token: SecretStr = SecretStr("")
         self._base_url: Optional[str] = None
@@ -103,7 +102,6 @@ class AppSettings(QObject):
 
     def update(self, settings: 'AppSettings'):
         """ Update the settings """
-        self._appium_server = settings._appium_server
         #self.ai_service = settings.ai_service
         self.token = settings.token
         self.base_url = settings.base_url

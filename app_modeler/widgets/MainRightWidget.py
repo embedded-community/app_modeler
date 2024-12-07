@@ -1,7 +1,5 @@
 import json
 import logging
-import pathlib
-import textwrap
 from pathlib import Path
 
 from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QWidget, QTabWidget, QPushButton, \
@@ -9,7 +7,6 @@ from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QW
 
 from app_modeler.models.FunctionCall import FunctionCall
 from app_modeler.models.ModelerState import ModelerState
-from app_modeler.models.TestSession import ClassData
 from app_modeler.utils.TestGenerator import TestGenerator
 from app_modeler.widgets.FunctionListWidget import FunctionListWidget
 from app_modeler.widgets.SettingsWidget import SettingsWidget

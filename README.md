@@ -5,6 +5,11 @@ Appium-supported targets, such as Android applications.
 Its cutting-edge features make it an essential companion for developers and testers aiming to 
 automate and streamline their workflows.
 
+🚧 Project Status: Under Development
+
+This project is heavily under development, and its features are subject to change. While progress is ongoing, current functionality has been primarily tested and works best on Android apps. Support for other platforms or use cases is limited and may not yet be fully implemented.
+
+
 ![main_view](doc/images/main_view.png)
 
 ## Key Features:

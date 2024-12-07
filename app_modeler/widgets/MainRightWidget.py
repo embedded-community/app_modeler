@@ -72,7 +72,7 @@ class BottomRightWidget(SettingsWidget):
         self.history_layout.addWidget(self.history_list)
         history_operate_box = QGroupBox()
         history_operate_layout = QHBoxLayout()
-        self.history_export_button = QPushButton("Export")
+        self.history_export_button = QPushButton("Export test scenario")
         self.history_export_button.setToolTip("Export reproducible pytest test project")
         history_operate_layout.addWidget(self.history_export_button)
         history_operate_box.setLayout(history_operate_layout)
@@ -185,6 +185,10 @@ class BottomRightWidget(SettingsWidget):
 
         tg = TestGenerator(start_options=self.state.appium_options,
                       session=self.state.session)
-        [files] = tg.generate(output_path)
+        files = tg.generate(output_path)
         logger.info(f"Generated files: {files}")
-        QMessageBox.information(self, "Exported", f"Exported to {output_path:}\n* {'\n* '.join(files)}")
+        names = [Path(f).name for f in files]
+
+        QMessageBox.information(self,
+                                "Export success",
+                                f"Exported to {output_path:}\n* {'\n* '.join(names)}")

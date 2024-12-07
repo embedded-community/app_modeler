@@ -55,12 +55,15 @@ class TestGenerator:
         return generated_files
 
     def generate_pytest_case(self, calls: list[FunctionCall]):
-        view_names = [call.view for call in calls]
+
+        view_names = set()
+        for call in calls:
+            view_names.add(call.view)
         view_imports = "\n".join([f"from .{view} import {view}" for view in view_names])
 
         calls_code = ""
         for index, call in enumerate(calls):
-            calls_code += f"# Step #{index}\n"
+            calls_code += f"{' '*4}# Step #{index}\n"
             calls_code += f"{' '*4}view = {call.view}(appium_driver)\n"
             calls_code += f"{' '*4}view.{call}\n"
             calls_code += "\n"

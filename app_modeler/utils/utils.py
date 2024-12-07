@@ -1,5 +1,4 @@
 import inspect
-import os
 import types
 from pathlib import Path
 from importlib import import_module
@@ -8,7 +7,7 @@ import ast
 from typing import Type
 import sys
 
-from PySide6.QtGui import QIcon, QPixmap, Qt
+from PySide6.QtGui import QIcon, QPixmap
 
 from app_modeler.appium_helpers.AppiumInterface import AppiumInterface
 

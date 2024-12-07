@@ -28,7 +28,7 @@ class BottomLeftWidget(SettingsWidget):
         self.image = ImageWidget(self)
         self.image.setVisible(False)
         from PySide6.QtWidgets import QPlainTextEdit
-        self.help_label = QLabel(textwrap.dedent(f"""
+        self.help_label = QLabel(textwrap.dedent("""
         Instructions:
         
         0. Verify that the <a href="https://appium.io">appium</a> server is running with selected drivers.

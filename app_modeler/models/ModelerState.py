@@ -48,6 +48,7 @@ class ModelerState(QObject):
     def __init__(self, app_settings: AppSettings):
         super().__init__()
         self._app_settings = app_settings
+        self._appium_options: Optional[StartOptions] = None
         self.ai_assistant: Optional[OpenAIAssistant] = None
         self.signals = Signals()
         self.session = TestSession()
@@ -74,6 +75,10 @@ class ModelerState(QObject):
     def app_settings(self) -> AppSettings:
         return self._app_settings
 
+    @property
+    def appium_options(self) -> StartOptions:
+        return self._appium_options
+
     def wait_for_thread(func):
         """ Decorator to wait for the thread to finish before calling the function """
         def wrapper(self, *args, **kwargs):
@@ -95,6 +100,7 @@ class ModelerState(QObject):
 
     def do_connect(self, start_options: StartOptions) -> bytes:
         self.signals.status_message.emit('Connecting to appium server')
+        self._appium_options = start_options
         self.driver = create_driver(start_options)
         token = start_options.app_settings.token
         base_url = start_options.app_settings.base_url

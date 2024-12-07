@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QStatusBar, QMenu, QLabel, QToolButton, QStyle, QDialog, QFrame
+from PySide6.QtWidgets import QStatusBar, QMenu, QLabel, QToolButton, QDialog, QFrame
 from PySide6.QtGui import QIcon, QAction, Qt, QPixmap, QPainter, QColor
 from selenium.webdriver.common.options import BaseOptions
 

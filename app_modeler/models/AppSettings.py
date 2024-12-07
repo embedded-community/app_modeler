@@ -81,7 +81,7 @@ class AppSettings(QObject):
         self._base_url = value
 
     @property
-    def token(self) -> SecretStr:
+    def token(self) -> Optional[SecretStr]:
         """ Get the openapi token secret """
         return self._token
 

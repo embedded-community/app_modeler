@@ -115,7 +115,11 @@ class ModelerState(QObject):
     @wait_for_thread
     def on_disconnect(self):
         if self.driver is not None:
-            self.driver.quit()
+            try:
+                self.driver.quit()
+            except InvalidSessionIdException:
+                pass
+        self.driver = None
         self.signals.disconnected.emit()
 
     @wait_for_thread

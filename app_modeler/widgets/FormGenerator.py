@@ -1,5 +1,5 @@
 import datetime
-from typing import get_type_hints, get_origin, get_args, Union, NewType
+from typing import get_type_hints, get_origin, get_args, Union, NewType, List, Dict
 import logging
 
 
@@ -9,6 +9,10 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtCore import Qt
+
+from app_modeler.widgets.ListEditorWidget import ListEditorWidget
+from app_modeler.widgets.DictEditorWidget import DictEditorWidget
+
 
 MultilineStr = NewType('MultilineStr', str)
 SecretStr = NewType('SecretStr', str)
@@ -153,6 +157,10 @@ class FormGenerator(QWidget):
         elif actual_type is SecretStr:
             widget = QLineEdit()
             widget.setEchoMode(QLineEdit.EchoMode.Password)
+        elif actual_type is List[str]:
+            widget = ListEditorWidget(self)
+        elif actual_type is Dict[str, str]:
+            widget = DictEditorWidget(self)
         else:
             # Handle other types or return None to skip
             return None
@@ -180,6 +188,10 @@ class FormGenerator(QWidget):
             widget.setPlainText(value)
         elif isinstance(widget, QCheckBox):
             widget.setChecked(bool(value))
+        elif isinstance(widget, ListEditorWidget):
+            widget.set_items(value)
+        elif isinstance(widget, DictEditorWidget):
+            widget.set_dict(value)
 
     def _connect_widget_signal(self, widget, property_name, actual_type):
         """
@@ -209,6 +221,10 @@ class FormGenerator(QWidget):
                 value = widget.currentText()
             elif isinstance(widget, QCheckBox):
                 value = widget.isChecked()
+            elif isinstance(widget, ListEditorWidget):
+                value = widget.get_items()
+            elif isinstance(widget, DictEditorWidget):
+                value = widget.get_dict()
             else:
                 value = None
             try:
@@ -228,6 +244,12 @@ class FormGenerator(QWidget):
         elif isinstance(widget, QCheckBox):
             # For the main widget, not the 'Set to None' checkbox
             widget.stateChanged.connect(update_property)
+        elif isinstance(widget, ListEditorWidget):
+            # Connect the widget's signals to update the property
+            widget.list_widget.itemChanged.connect(update_property)
+        elif isinstance(widget, DictEditorWidget):
+            # Connect the widget's signals to update the property
+            widget.table.itemChanged.connect(update_property)
 
     def _connect_none_checkbox(self, none_checkbox, widget, property_name, actual_type):
         """
@@ -268,6 +290,10 @@ class FormGenerator(QWidget):
             value = widget.toPlainText()
         elif isinstance(widget, QCheckBox):
             value = widget.isChecked()
+        elif isinstance(widget, ListEditorWidget):
+            value = widget.get_items()
+        elif isinstance(widget, DictEditorWidget):
+            value = widget.get_dict()
         else:
             value = None
         setattr(self.instance, property_name, value)
@@ -292,25 +318,31 @@ class FormGenerator(QWidget):
                         values[name] = 0.0
                 else:
                     values[name] = text
-            elif isinstance(widget, (MultilineStr, SecretStr)):
+            elif isinstance(widget, type(MultilineStr)) or isinstance(widget, type(SecretStr)):
                 values[name] = widget.text()
             elif isinstance(widget, QCheckBox):
                 values[name] = widget.isChecked()
+            elif isinstance(widget, ListEditorWidget):
+                values[name] = widget.get_items()
+            elif isinstance(widget, DictEditorWidget):
+                values[name] = widget.get_dict()
         return values
 
 if __name__ == "__main__":
     import sys
+    import json
     from PySide6.QtWidgets import QApplication, QMainWindow
+    from appium.options.mac import Mac2Options as Option
 
-    from appium.options.android.uiautomator2.uiautomator2_server_read_timeout_option import \
-        Uiautomator2ServerReadTimeoutOption
-
-    conf = Uiautomator2ServerReadTimeoutOption()
+    conf = Option()
+    conf.postrun = {'key': 'value'}
+    conf.arguments = ['arg1', 'arg2']
     app = QApplication(sys.argv)
     window = QMainWindow()
     window.setWindowTitle("Form Generator Example")
     widget = FormGenerator(conf)
     window.setCentralWidget(widget)
     window.show()
+    app.exec()
+    print(json.dumps(conf.to_capabilities(), indent=4))
 
-    sys.exit(app.exec())

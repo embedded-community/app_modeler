@@ -7,6 +7,7 @@ import ast
 from typing import Type
 import sys
 
+from PySide6.QtGui import QIcon, QPixmap
 
 from app_modeler.appium_helpers.AppiumInterface import AppiumInterface
 
@@ -205,3 +206,9 @@ class MyView(AppiumInterface):
     except Exception:
         logger.exception("An error occurred while loading the module.")
         # Handle exception as needed
+
+def get_icon(name: str) -> QIcon:
+    non_binary_root_path = Path(__file__).parent.parent.parent
+    base_path = Path(getattr(sys, '_MEIPASS', non_binary_root_path))
+    icon_path = base_path / "resources" /  name
+    return QIcon(QPixmap(str(icon_path)))

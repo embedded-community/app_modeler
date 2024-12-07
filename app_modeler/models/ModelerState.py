@@ -30,8 +30,12 @@ class Signals(QObject):
     execute = Signal(FunctionCall)
     executed = Signal(FunctionCall)
 
+
+    status_message = Signal(str)
+
     processing = Signal(bool)
     screenshot = Signal(bytearray)
+    tokens_spend = Signal(int)
     class_propose = Signal(str)
     elements_propose = Signal(str)
     import_module = Signal()
@@ -90,6 +94,7 @@ class ModelerState(QObject):
         self.worker_thread.start()
 
     def do_connect(self, start_options: StartOptions) -> bytes:
+        self.signals.status_message.emit('Connecting to appium server')
         self.driver = create_driver(start_options)
         token = start_options.app_settings.token
         base_url = start_options.app_settings.base_url
@@ -132,10 +137,13 @@ class ModelerState(QObject):
         3. Generate class code
         """
         logger.debug('capture screenshot')
+
+        self.signals.status_message.emit('Capturing screenshot')
         screenshot = self.driver.get_screenshot_as_png()
         self.signals.screenshot.emit(bytearray(screenshot))
 
         logger.debug('Discover elements')
+        self.signals.status_message.emit('Discovering elements')
         discover = ElementsDiscover(self.driver)
         elements_data = discover.scan_view()
         elements_str = json.dumps([elem.asdict_custom() for elem in elements_data], indent=4)
@@ -148,19 +156,21 @@ class ModelerState(QObject):
         if class_data:
             logger.debug('Found previous class, reuse it')
             self._current_view = class_data
-            self.signals.class_propose.emit(class_data.class_str)
-            return
-
-        logger.debug('Generate class code')
-
-        class_name = f'View{self._view_index}'
-        self._view_index += 1
-        class_generator = AppiumClassGenerator(self.ai_assistant, prompt_template=self.app_settings.class_generator_prompt)
-        class_str = class_generator.generate(class_name=class_name, elements=elements_data)
+            class_name = class_data.name
+            class_str = class_data.class_str
+        else:
+            logger.debug('Generate class code')
+            self.signals.status_message.emit('Generating class code')
+            class_name = f'View{self._view_index}'
+            self._view_index += 1
+            class_generator = AppiumClassGenerator(self.ai_assistant, prompt_template=self.app_settings.class_generator_prompt)
+            class_str = class_generator.generate(class_name=class_name, elements=elements_data)
+            self.signals.tokens_spend.emit(self.ai_assistant.used_tokens)
 
         self.signals.class_propose.emit(class_str)
 
         logger.debug('Ask next functions')
+        self.signals.status_message.emit('Asking next functions')
         tester = TesterAi(self.ai_assistant, prompt_template=self.app_settings.tester_prompt)
 
         class_docstring = generate_class_json_from_code(class_str, class_name)
@@ -168,14 +178,21 @@ class ModelerState(QObject):
         logger.debug(f"Previous steps: {previous_steps}")
         next_functions: [FunctionCall] = tester.ask_next_step(class_docstring, previous_steps=previous_steps)
         logger.debug(f"Next functions: {next_functions}")
+        self.signals.tokens_spend.emit(self.ai_assistant.used_tokens)
 
-        class_data = ClassData(name=class_name,
-                               screenshot=screenshot,
-                               elements=elements_data,
-                               class_str=class_str,
-                               function_candidates=next_functions)
-        self.session.classes.append(class_data)
-        self._current_view = class_data
+        if not class_data:
+            # create new class
+            class_data = ClassData(name=class_name,
+                                   screenshot=screenshot,
+                                   elements=elements_data,
+                                   class_str=class_str,
+                                   function_candidates=next_functions)
+            self.session.classes.append(class_data)
+            self._current_view = class_data
+        else:
+            # update new next function candidates
+            class_data.function_candidates = next_functions
+
         logger.debug('Next functions available')
 
     @wait_for_thread

@@ -1,8 +1,12 @@
+datas = [
+    ('resources/appium.png', 'resources')
+]
+
 a = Analysis(
     ['app_modeler/main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=datas,
     hiddenimports=[],
     hookspath=[],
     runtime_hooks=[],

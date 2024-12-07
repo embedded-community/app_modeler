@@ -5,10 +5,10 @@ from app_modeler.dialogs.ExceptionDialog import ExceptionDialog
 from app_modeler.dialogs.SettingsDIalog import SettingsDialog, AppSettingsWidget
 from app_modeler.models.AppSettings import AppSettings
 from app_modeler.models.ModelerState import ModelerState
-from app_modeler.widgets.BottomMiddleWidget import BottomMiddleWidget
+from app_modeler.widgets.MainMiddleWidget import BottomMiddleWidget
 from app_modeler.widgets.MainStatusBar import MainStatusBar
-from app_modeler.widgets.BottomLeftWidget import BottomLeftWidget
-from app_modeler.widgets.BottomRightWidget import BottomRightWidget
+from app_modeler.widgets.MainLeftWidget import BottomLeftWidget
+from app_modeler.widgets.MainRightWidget import BottomRightWidget
 from app_modeler import __version__
 
 class MainWindow(QMainWindow):

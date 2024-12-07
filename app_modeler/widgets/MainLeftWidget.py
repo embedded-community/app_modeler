@@ -1,6 +1,8 @@
+import textwrap
 from time import sleep
 
-from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QPushButton, QCheckBox
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QPushButton, QCheckBox, QLabel
 
 from app_modeler.models.ModelerState import ModelerState
 from app_modeler.widgets.ImageWidget import ImageWidget
@@ -24,6 +26,31 @@ class BottomLeftWidget(SettingsWidget):
     def _setup_ui(self):
         layout = QVBoxLayout()
         self.image = ImageWidget(self)
+        self.image.setVisible(False)
+        from PySide6.QtWidgets import QPlainTextEdit
+        self.help_label = QLabel(textwrap.dedent(f"""
+        Instructions:
+        
+        0. Verify that the <a href="https://appium.io">appium</a> server is running with selected drivers.
+        1. Configure the appium settings using statusbar appium icon.
+        2. Connect to the device using the connection status button.
+        3. Click on the analyse button to start the analysis.
+        4. Click on the import button to import the generated class
+        5. Double-click on the one suggested function that you want execute
+        
+        NOTE: 
+          * openAI token and used prompts is configured in the application settings.
+          * auto analyse will automatically start the analysis after 
+            connecting to the device or after executing a function.
+          * auto import will automatically import the generated  
+            class after class generation.
+          * auto execute will automatically execute the suggested 
+            function after importing the generated class.
+        
+        """).strip().replace("\n", "<br>"))
+        self.help_label.setOpenExternalLinks(True)
+        self.help_label.setTextFormat(Qt.RichText)
+        layout.addWidget(self.help_label, stretch=1)
         layout.addWidget(self.image)
         self.setLayout(layout)
 
@@ -44,6 +71,8 @@ class BottomLeftWidget(SettingsWidget):
         layout.addWidget(operate_box)
 
     def on_connected(self):
+        self.help_label.setVisible(False)
+        self.image.setVisible(True)
         if self.auto_analyse_checkbox.isChecked():
             # wait a bit to ensure the view is updated
             sleep(1)

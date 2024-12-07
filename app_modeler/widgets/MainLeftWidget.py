@@ -27,7 +27,6 @@ class BottomLeftWidget(SettingsWidget):
         layout = QVBoxLayout()
         self.image = ImageWidget(self)
         self.image.setVisible(False)
-        from PySide6.QtWidgets import QPlainTextEdit
         self.help_label = QLabel(textwrap.dedent("""
         Instructions:
         

@@ -332,7 +332,7 @@ if __name__ == "__main__":
     import sys
     import json
     from PySide6.QtWidgets import QApplication, QMainWindow
-    from appium.options.mac import Mac2Options as Option
+    from appium.options.android import UiAutomator2Options as Option
 
     conf = Option()
     conf.postrun = {'key': 'value'}

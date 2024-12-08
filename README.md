@@ -12,7 +12,7 @@ This project is heavily under development, and its features are subject to chang
 
 ![main_view](doc/images/main_view.png)
 
-## Key Features:
+## Key Features
 
 * Effortless Connection: Seamlessly connect to any Appium-supported target, including Android applications, with minimal setup.
 * Automatic View Analysis: Leverage the app’s intelligent engine to analyze application views and generate Python models, reducing manual effort and saving time.
@@ -27,6 +27,18 @@ This project is heavily under development, and its features are subject to chang
 application modeling and test generation faster, smarter, and more efficient than ever. 
 Whether you’re a developer, a tester, or an automation enthusiast, 
 `app_modeler` empowers you to deliver high-quality applications with ease.
+
+
+## Disclaimer
+
+This software include functionality for automatic execution, which could result in unintended or harmful actions depending on its configuration and use. By using this software, you agree to the following:
+	•	Use at your own risk: You are solely responsible for understanding and reviewing the functionality of this software before using it.
+	•	No warranty: This software is provided “as is” without any warranties, express or implied, including but not limited to warranties of merchantability or fitness for a particular purpose.
+	•	Risk of harm: Automatic execution may result in data loss, system instability, or other harmful outcomes. Ensure you understand the impact of its operation before running it.
+	•	Responsibility: The authors and contributors of this project are not liable for any damages, losses, or consequences arising from the use or misuse of this software.
+
+Important: Use caution and thoroughly review the code, especially when running it in sensitive or production environments.
+
 
 ## Requirements
 - python 3.12

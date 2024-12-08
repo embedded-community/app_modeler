@@ -5,7 +5,6 @@ from typing import Optional
 from PySide6.QtCore import QObject, Signal, QSettings
 from appium import webdriver
 from selenium.common import NoSuchDriverException, InvalidSessionIdException
-from selenium.webdriver.common.by import By
 
 from app_modeler.ai.OpenAiAssistant import OpenAIAssistant
 from app_modeler.ai.AppiumClassGenerator import AppiumClassGenerator
@@ -24,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class Signals(QObject):
+    status_message = Signal(str)
     connect = Signal(StartOptions)
     connected = Signal()
     disconnect = Signal()
@@ -31,10 +31,6 @@ class Signals(QObject):
     analyse = Signal()
     execute = Signal(FunctionCall)
     executed = Signal(FunctionCall)
-
-
-    status_message = Signal(str)
-
     processing = Signal(bool)
     screenshot = Signal(bytearray)
     tokens_spend = Signal(int)

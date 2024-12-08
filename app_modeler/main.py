@@ -11,6 +11,7 @@ def configure_logging():
     logging.getLogger('httpcore').setLevel(logging.WARNING)
     logging.getLogger('openai._base_client').setLevel(logging.WARNING)
     logging.getLogger('selenium.webdriver.remote.remote_connection').setLevel(logging.WARNING)
+    logging.getLogger('app_modeler.widgets.SettingsWidget').setLevel(logging.WARNING)
 
 
 def main():

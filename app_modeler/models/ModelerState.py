@@ -5,12 +5,14 @@ from typing import Optional
 from PySide6.QtCore import QObject, Signal, QSettings
 from appium import webdriver
 from selenium.common import NoSuchDriverException, InvalidSessionIdException
+from selenium.webdriver.common.by import By
 
 from app_modeler.ai.OpenAiAssistant import OpenAIAssistant
 from app_modeler.ai.AppiumClassGenerator import AppiumClassGenerator
 from app_modeler.ai.TesterAi import TesterAi
 from app_modeler.appium_helpers.drivers.create import create_driver
 from app_modeler.appium_helpers.elements.ElementsDiscover import ElementsDiscover
+from app_modeler.appium_helpers.elements.utils import resolve_root
 from app_modeler.models.AppSettings import AppSettings
 from app_modeler.models.FunctionCall import FunctionCall
 from app_modeler.models.StartOptions import StartOptions
@@ -106,7 +108,13 @@ class ModelerState(QObject):
         base_url = start_options.app_settings.base_url
         model = start_options.app_settings.model
         self.ai_assistant = OpenAIAssistant(api_key=token, base_url=base_url, model=model)
-        return self.driver.get_screenshot_as_png()
+        return self.get_screenshot()
+
+    def get_screenshot(self):
+        root = resolve_root(self.driver)
+        if isinstance(root, webdriver.Remote):
+            return root.get_screenshot_as_png()
+        return root.screenshot_as_png
 
     def on_connected(self, screenshot: bytes):
         self.signals.screenshot.emit(screenshot)
@@ -149,7 +157,7 @@ class ModelerState(QObject):
         logger.debug('capture screenshot')
 
         self.signals.status_message.emit('Capturing screenshot')
-        screenshot = self.driver.get_screenshot_as_png()
+        screenshot = self.get_screenshot()
         self.signals.screenshot.emit(bytearray(screenshot))
 
         logger.debug('Discover elements')

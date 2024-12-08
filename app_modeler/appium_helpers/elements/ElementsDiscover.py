@@ -1,10 +1,11 @@
 import logging
 from dataclasses import dataclass, field, fields
+from typing import Optional
 
 from selenium.common import StaleElementReferenceException, NoSuchAttributeException
 from selenium.webdriver.common.by import By
 
-from app_modeler.appium_helpers.elements.element_type import get_type
+from app_modeler.appium_helpers.elements.utils import get_element_details, resolve_root
 
 logger  = logging.getLogger(__name__)
 
@@ -15,10 +16,12 @@ class ElementData:
     text: str
     location: dict
     type: str
-    tag: str
-    resource_id: str
-    is_clickable: bool
-    is_visible: bool = True
+    tag: Optional[str] = None
+    resource_id: Optional[str] = None
+    is_clickable: Optional[bool] = None
+    is_accessible: Optional[bool] = None
+    xpath: Optional[str] = None
+    is_visible: Optional[bool] = True
 
     def asdict_custom(self):
         result = {}
@@ -28,16 +31,19 @@ class ElementData:
             result[f.name] = getattr(self, f.name)
         return result
 
+
 class ElementsDiscover:
     def __init__(self, driver):
         self.driver = driver
 
-    def scan_view(self, by: By = By.XPATH, value: str = "//*") -> [ElementData]:
+    def scan_view(self) -> [ElementData]:
         """ Scan the current view and return elements data as json """
         platform = self.driver.capabilities.get('platformName')
 
         elements_data = []
-        elements = self.driver.find_elements(by, value)
+
+        root = resolve_root(self.driver)
+        elements = root.find_elements(by=By.XPATH, value='//*')
         for element in elements:
             try:
                 elem_data = self.detect_element(platform, element)
@@ -52,38 +58,26 @@ class ElementsDiscover:
 
     @staticmethod
     def detect_element(platform: str, element) -> ElementData:
+        """ Detect element data. Raise ValueError if element is not visible or enabled or if details are not found """
         assert platform in ['android', 'mac'], f"Unknown platform: {platform}"
+
         try:
-            element_type = get_type(platform=platform, element=element)
-        except (StaleElementReferenceException, NoSuchAttributeException, KeyError):
-            raise ValueError(f"Error getting element type: {element.get_dom_attribute('class')}")
-
-        if not element_type:
-            # logger.debug(f'Element type not known: {element.get_dom_attribute("class")}')
-            raise ValueError(f"Element type not known: {element.get_dom_attribute('class')}")
-
-        resource_id = element.get_dom_attribute('resource-id')
-        tag = element.tag_name
-
-        if not (tag or resource_id):
-            raise ValueError("No tag or resource_id")
-
-        is_enabled = element.get_attribute('enabled') == 'true'
-        try:
-            if not element.is_displayed() or not is_enabled:
+            is_enabled = element.get_attribute('enabled') == 'true'
+            if not element.is_displayed() and not is_enabled:
                 raise ValueError("Element is not displayed or enabled")
         except StaleElementReferenceException as error:
             logger.warning(f"Error checking if element is displayed: {error}")
             # assume no more elements are visible
             raise ValueError("Element is not displayed or enabled")
 
-        is_clickable = element.get_attribute('clickable') == 'true'
+        try:
+            details = get_element_details(platform=platform, element=element)
+        except (StaleElementReferenceException, NoSuchAttributeException, KeyError) as error:
+            raise ValueError(str(error)) from error
+
         return ElementData( element=element,
                             text=element.text,
                             location=element.location,
-                            type=element_type,
-                            tag=tag,
-                            resource_id=resource_id,
-                            is_clickable=is_clickable)
+                            **details)
 
 

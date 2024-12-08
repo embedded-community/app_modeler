@@ -114,4 +114,5 @@ element_type_mapping_mac = {
     "XCUIElementTypeToolbar": "Toolbar",
     "XCUIElementTypeStatusBar": "StatusBar",
     "XCUIElementTypeTable": "Table",
+    "XCUIElementTypeMenuItem": "MenuItem",
 }

@@ -42,6 +42,9 @@ class FunctionListWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(self.view)
 
+    def refresh(self):
+        self.model.layoutResetFinished.emit()
+
     def execute_function(self, row: int):
         func = self.model.functions[row]
         logger.debug(f"Executing function '{func.function_name}' with args: {func.args} and kwargs: {func.kwargs}")

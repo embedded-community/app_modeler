@@ -106,7 +106,7 @@ class BottomRightWidget(SettingsWidget):
     def _connect_signals(self):
         self.state.signals.next_func_candidates.connect(self.on_next_function_candidates_available)
         self.state.signals.module_imported.connect(self.on_module_imported)
-        self.state.signals.executed.connect(self.history_list.append)
+        self.state.signals.executed.connect(self.on_executed)
         self.api_list.execute_signal.connect(self.on_execute)
         self.injects_export_button.clicked.connect(self.on_injects_export)
         self.injects_import_button.clicked.connect(self.on_injects_import)
@@ -134,6 +134,10 @@ class BottomRightWidget(SettingsWidget):
     def on_execute(self, function_call: FunctionCall):
         logger.debug(f"Executing function: {function_call}")
         self.state.signals.execute.emit(function_call)
+
+    def on_executed(self, func_call: FunctionCall):
+        self.history_list.append(func_call)
+        self.api_list.refresh()
 
     def update_list(self):
         view = self.state.current_view

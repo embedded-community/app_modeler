@@ -33,11 +33,8 @@ class FunctionCall(NextFunction):
             if re.match(r'^{([^}]*)}$', item[0]):
                 value = self.get_input_from_user(item[0])
                 logger.debug(f'User input: {value}')
-
-                # replace the input in the args
-                self.args.replace(item[0], value)
-
                 item = (f'"{value}"',)
+                self.args = self.args.replace(arg, item[0])
             out += item
         return out
 

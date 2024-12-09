@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass, field, fields
-from typing import Optional, Dict, Any
+from typing import Optional
 
 from selenium.common import StaleElementReferenceException, NoSuchAttributeException
 from selenium.webdriver.common.by import By

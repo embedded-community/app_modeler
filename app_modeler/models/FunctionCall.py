@@ -107,7 +107,7 @@ class FunctionCall(NextFunction):
 
 if __name__ == "__main__":
     import threading
-    from PySide6.QtWidgets import QWidget, QPushButton
+    from PySide6.QtWidgets import QPushButton
     from PySide6.QtCore import Slot
     import sys
     class View:
@@ -131,33 +131,10 @@ if __name__ == "__main__":
             view = View()
             nf = FunctionCall(view='view', function_name="click_tab1",
                               args='"{arg1}", "arg2"', kwargs="")
+            nf.test()
             thread = threading.Thread(target=nf.call, args=(view,))
             thread.start()
             #thread.join()
 
     app = MainApp()
     sys.exit(app.exec())
-    #value = FunctionCall.get_input_from_user("arg1")
-    #print(value)
-    #sys.exit(0)
-
-    nf = FunctionCall(view='view', function_name="click_tab1",
-                      args='"{arg1}", "arg2"', kwargs='key1="value1", key2="value2", "key3"="value3"')
-    nf.test()
-    print(str(nf))
-    print(nf.get_args())
-    print(nf.get_kwargs())
-
-    dump = nf.model_dump()
-    print(dump)
-    nf2 = NextFunction(**dump)
-
-
-    view = View()
-
-    nf.call(view)
-
-    #thread = threading.Thread(target=nf.call, args=(view,))
-    #thread.start()
-    #thread.join()
-    print(dump)

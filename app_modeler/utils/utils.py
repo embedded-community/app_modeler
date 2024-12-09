@@ -220,7 +220,7 @@ def get_human_friendly_error_message(exception: MaxRetryError) -> str:
     :param exception: The MaxRetryError exception.
     :return: A string with a human-friendly error message.
     """
-    message = f"Request failed after maximum retries."
+    message = "Request failed after maximum retries."
     if hasattr(exception, "pool"):
         message += f" Host: {exception.pool.host}"
     if hasattr(exception, "reason") and exception.reason:

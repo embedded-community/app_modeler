@@ -37,9 +37,13 @@ class AppiumConfigDialog(QDialog):
         self.setLayout(layout)
 
     def _connect_signals(self):
-        self.accept_button.clicked.connect(self.accept)
+        self.accept_button.clicked.connect(self.on_close)
         self.export_button.clicked.connect(self.on_export)
         self.import_button.clicked.connect(self.on_import)
+
+    def on_close(self):
+        self.appium_options_widget.save_settings()
+        self.accept()
 
     @property
     def options(self):

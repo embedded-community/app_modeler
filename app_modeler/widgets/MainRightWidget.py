@@ -51,7 +51,10 @@ class BottomRightWidget(SettingsWidget):
         choises_operate_layout = QHBoxLayout()
         self.inject_now_button = QPushButton("Inject")
         self.inject_now_button.setToolTip("Inject arguments from the Inject tab")
+        self.add_to_inject_button = QPushButton("Add to inject")
+        self.add_to_inject_button.setToolTip("Add selected function to the Inject tab")
         choises_operate_layout.addWidget(self.inject_now_button)
+        choises_operate_layout.addWidget(self.add_to_inject_button)
         choises_operate_box.setLayout(choises_operate_layout)
         self.choices_layout.addWidget(choises_operate_box)
 
@@ -111,6 +114,7 @@ class BottomRightWidget(SettingsWidget):
         self.inject_now_button.clicked.connect(self.on_inject)
         self.history_export_button.clicked.connect(self.on_history_export)
         self.clean_history_button.clicked.connect(self.history_list.clear)
+        self.add_to_inject_button.clicked.connect(self.add_to_inject)
 
     def on_next_function_candidates_available(self):
         logger.debug("Updating function candidates")
@@ -193,3 +197,7 @@ class BottomRightWidget(SettingsWidget):
         QMessageBox.information(self,
                                 "Export success",
                                 f"Exported to {output_path:}\n* {'\n* '.join(names)}")
+
+    def add_to_inject(self):
+        selected = self.api_list.get_selected()
+        self.inject_list.append_many(selected)

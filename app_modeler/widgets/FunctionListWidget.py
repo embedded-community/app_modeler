@@ -79,6 +79,10 @@ class FunctionListWidget(QWidget):
     def append(self, function: FunctionCall):
         self.model.append(function)
 
+    def append_many(self, functions: List[FunctionCall]):
+        for function in functions:
+            self.append(function)
+
     def to_dict(self):
         return [func.model_dump() for func in self.model.functions]
 
@@ -90,6 +94,10 @@ class FunctionListWidget(QWidget):
         """Inject all functions from given function list widget."""
         for function in function_list_widget.model.functions:
             self.model.update_args(function)
+
+    def get_selected(self):
+        selected_rows = self.view.selectionModel().selectedRows()
+        return [self.model.functions[row.row()] for row in selected_rows]
 
 if __name__ == "__main__":
     from PySide6.QtWidgets import QApplication

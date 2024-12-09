@@ -59,7 +59,8 @@ class AppiumOptionsWidget(SettingsWidget):
 
         self.setLayout(layout)
 
-        self.on_option_changed(self.driver_combo.currentText())
+        self.update_options(self.driver_combo.currentText())
+        self.init_settings(self.settings)
 
     @property
     def selected_driver(self):
@@ -79,23 +80,28 @@ class AppiumOptionsWidget(SettingsWidget):
     def from_dict(self, data):
         self.appium_server_line_edit.setText(data['appium_server'])
         self.driver_combo.setCurrentText(data['driver'])
-        self.on_option_changed(data['driver'])
-        self.options.load_capabilities(data['capabilities'])
+        self.update_options(data['driver'], data['capabilities'])
 
     def on_option_changed(self, text):
+        self.update_options(driver=text)
+
+    def update_options(self, driver: str, capabilities: Optional[dict] = None):
         if self.form_generator:
             self.appium_options_layout.removeWidget(self.form_generator)
+            self.form_generator.setVisible(False)
             self.form_generator.deleteLater()
-        self._options = self._appium_options[text]()
-        if text == 'Mac2Options':
+            self.form_generator = None
+        self._options = self._appium_options[driver]()
+        if driver == 'Mac2Options':
             self._options.platform_name = 'mac'
             self._options.automation_name = 'mac2'
-        elif text == 'AndroidOptions':
+        elif driver == 'AndroidOptions':
             self._options.platform_name = 'android'
             self._options.automation_name = 'uiautomator2'
+        if capabilities:
+            self._options.load_capabilities(capabilities)
         self.form_generator = FormGenerator(self._options, self)
         self.appium_options_layout.addWidget(self.form_generator)
-        self.init_settings(self.settings)
 
     @property
     def options(self):
@@ -106,15 +112,19 @@ class AppiumOptionsWidget(SettingsWidget):
 if __name__ == "__main__":
     # main.py
     import sys
-    from PySide6.QtWidgets import QApplication, QMainWindow
+    from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 
 
     class MainWindow(QMainWindow):
         def __init__(self):
             super().__init__()
             self.setWindowTitle("Form Generator Example")
+            widget = QWidget()
+            layout = QVBoxLayout()
             self.widget = AppiumOptionsWidget(QSettings())
-            self.setCentralWidget(self.widget)
+            layout.addWidget(self.widget)
+            widget.setLayout(layout)
+            self.setCentralWidget(widget)
 
         def print_form_values(self):
             values = self.widget.options

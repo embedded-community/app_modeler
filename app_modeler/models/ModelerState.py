@@ -108,7 +108,7 @@ class ModelerState(QObject):
 
     def get_screenshot(self):
         root = resolve_root(self.driver)
-        if isinstance(root, webdriver.Remote):
+        if root == self.driver:
             return root.get_screenshot_as_png()
         return root.screenshot_as_png
 
@@ -159,7 +159,9 @@ class ModelerState(QObject):
         logger.debug('Discover elements')
         self.signals.status_message.emit('Discovering elements')
         discover = ElementsDiscover(self.driver)
-        elements_data = discover.scan_view()
+        def progress_callback(elements: int):
+            self.signals.status_message.emit(f'Discovering elements: {elements}')
+        elements_data = discover.scan_view(progress_callback)
         elements_str = json.dumps([elem.asdict_custom() for elem in elements_data], indent=4)
         self.signals.elements_propose.emit(elements_str)
 

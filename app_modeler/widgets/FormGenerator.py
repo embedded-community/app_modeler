@@ -1,4 +1,5 @@
 import datetime
+from datetime import timedelta
 from typing import get_type_hints, get_origin, get_args, Union, NewType, List, Dict
 import logging
 
@@ -182,6 +183,8 @@ class FormGenerator(QWidget):
         if isinstance(widget, QLineEdit):
             if actual_type in (int, float):
                 widget.setText(str(value))
+            if actual_type is timedelta:
+                widget.setText(str(value.total_seconds()))
             else:
                 widget.setText(value)
         elif isinstance(widget, QTextEdit):

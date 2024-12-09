@@ -50,6 +50,7 @@ class BottomRightWidget(SettingsWidget):
         choises_operate_box = QGroupBox()
         choises_operate_layout = QHBoxLayout()
         self.inject_now_button = QPushButton("Inject")
+        self.inject_now_button.setToolTip("Inject arguments from the Inject tab")
         choises_operate_layout.addWidget(self.inject_now_button)
         choises_operate_box.setLayout(choises_operate_layout)
         self.choices_layout.addWidget(choises_operate_box)
@@ -59,10 +60,10 @@ class BottomRightWidget(SettingsWidget):
         self.inject_layout.addWidget(self.inject_list)
         inject_operate_box = QGroupBox()
         inject_operate_layout = QHBoxLayout()
-        self.injects_export_button = QPushButton("Export")
         self.injects_import_button = QPushButton("Import")
-        inject_operate_layout.addWidget(self.injects_export_button)
+        self.injects_export_button = QPushButton("Export")
         inject_operate_layout.addWidget(self.injects_import_button)
+        inject_operate_layout.addWidget(self.injects_export_button)
         inject_operate_box.setLayout(inject_operate_layout)
         self.inject_layout.addWidget(inject_operate_box)
 
@@ -74,10 +75,11 @@ class BottomRightWidget(SettingsWidget):
         history_operate_layout = QHBoxLayout()
         self.history_export_button = QPushButton("Export test scenario")
         self.history_export_button.setToolTip("Export reproducible pytest test project")
+        self.clean_history_button = QPushButton("Clean history")
+        history_operate_layout.addWidget(self.clean_history_button)
         history_operate_layout.addWidget(self.history_export_button)
         history_operate_box.setLayout(history_operate_layout)
         self.history_layout.addWidget(history_operate_box)
-
 
         # Operate
         operate_box = QGroupBox()
@@ -107,9 +109,8 @@ class BottomRightWidget(SettingsWidget):
         self.injects_import_button.clicked.connect(self.on_injects_import)
         self.auto_inject_checkbox.stateChanged.connect(self.inject_now_button.setDisabled)
         self.inject_now_button.clicked.connect(self.on_inject)
-
         self.history_export_button.clicked.connect(self.on_history_export)
-
+        self.clean_history_button.clicked.connect(self.history_list.clear)
 
     def on_next_function_candidates_available(self):
         logger.debug("Updating function candidates")

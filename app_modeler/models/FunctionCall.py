@@ -2,6 +2,9 @@ import logging
 import re
 from typing import Optional
 
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QMetaObject, Qt, Q_ARG, Q_RETURN_ARG
+from PySide6.QtWidgets import QInputDialog
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -26,8 +29,28 @@ class FunctionCall(NextFunction):
     def get_args(self) -> tuple:
         out = ()
         for arg in self.args.split(','):
-            out += (arg.strip().strip('"'),)
+            item = (arg.strip().strip('"'),)
+            if re.match(r'^{([^}]*)}$', item[0]):
+                value = self.get_input_from_user(item[0])
+                logger.debug(f'User input: {value}')
+                item = (f'"{value}"',)
+                self.args = self.args.replace(arg, item[0])
+            out += item
         return out
+
+    @staticmethod
+    def get_input_from_user(arg: str) -> str:
+        # make this call using main thread
+        logger.debug(f"Requesting input from user for {arg}")
+        result: str = QMetaObject.invokeMethod(
+            QApplication.instance().widget,
+            "get_text_from_user",
+            Qt.BlockingQueuedConnection,
+            Q_RETURN_ARG(str),
+            Q_ARG(str, arg))
+        if not result:
+            raise StopIteration('User cancelled input')
+        return result
 
     def get_kwargs(self) -> dict:
         out = {}
@@ -83,21 +106,35 @@ class FunctionCall(NextFunction):
 
 
 if __name__ == "__main__":
-    nf = FunctionCall(view='view', function_name="click_tab1",
-                      args='"arg1", "arg2"', kwargs='key1="value1", key2="value2", "key3"="value3"')
-    nf.test()
-    print(str(nf))
-    print(nf.get_args())
-    print(nf.get_kwargs())
-
-    dump = nf.model_dump()
-    print(dump)
-    nf2 = NextFunction(**dump)
-
+    import threading
+    from PySide6.QtWidgets import QPushButton
+    from PySide6.QtCore import Slot
+    import sys
     class View:
         def click_tab1(self, *args, **kwargs):
             print("click_tab1", args, kwargs)
-            return "click_tab1"
-    view = View()
-    nf.call(view)
-    print(dump)
+    class MainApp(QApplication):
+        def __init__(self, *args):
+            super().__init__(*args)
+            self.widget = QPushButton()
+            self.widget.show()
+            self.widget.clicked.connect(self.on_start_thread)
+
+        @Slot(str, result=str)
+        def get_text_from_user(self, arg: str) -> str:
+            text, ok = QInputDialog.getText(self.widget, "Input", f"Enter input for {arg}:")
+            if ok:
+                return text
+            return ""
+
+        def on_start_thread(self):
+            view = View()
+            nf = FunctionCall(view='view', function_name="click_tab1",
+                              args='"{arg1}", "arg2"', kwargs="")
+            nf.test()
+            thread = threading.Thread(target=nf.call, args=(view,))
+            thread.start()
+            #thread.join()
+
+    app = MainApp()
+    sys.exit(app.exec())

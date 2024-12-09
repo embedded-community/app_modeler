@@ -50,7 +50,11 @@ class BottomRightWidget(SettingsWidget):
         choises_operate_box = QGroupBox()
         choises_operate_layout = QHBoxLayout()
         self.inject_now_button = QPushButton("Inject")
+        self.inject_now_button.setToolTip("Inject arguments from the Inject tab")
+        self.add_to_inject_button = QPushButton("Add to inject")
+        self.add_to_inject_button.setToolTip("Add selected function to the Inject tab")
         choises_operate_layout.addWidget(self.inject_now_button)
+        choises_operate_layout.addWidget(self.add_to_inject_button)
         choises_operate_box.setLayout(choises_operate_layout)
         self.choices_layout.addWidget(choises_operate_box)
 
@@ -59,10 +63,10 @@ class BottomRightWidget(SettingsWidget):
         self.inject_layout.addWidget(self.inject_list)
         inject_operate_box = QGroupBox()
         inject_operate_layout = QHBoxLayout()
-        self.injects_export_button = QPushButton("Export")
         self.injects_import_button = QPushButton("Import")
-        inject_operate_layout.addWidget(self.injects_export_button)
+        self.injects_export_button = QPushButton("Export")
         inject_operate_layout.addWidget(self.injects_import_button)
+        inject_operate_layout.addWidget(self.injects_export_button)
         inject_operate_box.setLayout(inject_operate_layout)
         self.inject_layout.addWidget(inject_operate_box)
 
@@ -74,10 +78,11 @@ class BottomRightWidget(SettingsWidget):
         history_operate_layout = QHBoxLayout()
         self.history_export_button = QPushButton("Export test scenario")
         self.history_export_button.setToolTip("Export reproducible pytest test project")
+        self.clean_history_button = QPushButton("Clean history")
+        history_operate_layout.addWidget(self.clean_history_button)
         history_operate_layout.addWidget(self.history_export_button)
         history_operate_box.setLayout(history_operate_layout)
         self.history_layout.addWidget(history_operate_box)
-
 
         # Operate
         operate_box = QGroupBox()
@@ -101,15 +106,15 @@ class BottomRightWidget(SettingsWidget):
     def _connect_signals(self):
         self.state.signals.next_func_candidates.connect(self.on_next_function_candidates_available)
         self.state.signals.module_imported.connect(self.on_module_imported)
-        self.state.signals.executed.connect(self.history_list.append)
+        self.state.signals.executed.connect(self.on_executed)
         self.api_list.execute_signal.connect(self.on_execute)
         self.injects_export_button.clicked.connect(self.on_injects_export)
         self.injects_import_button.clicked.connect(self.on_injects_import)
         self.auto_inject_checkbox.stateChanged.connect(self.inject_now_button.setDisabled)
         self.inject_now_button.clicked.connect(self.on_inject)
-
         self.history_export_button.clicked.connect(self.on_history_export)
-
+        self.clean_history_button.clicked.connect(self.history_list.clear)
+        self.add_to_inject_button.clicked.connect(self.add_to_inject)
 
     def on_next_function_candidates_available(self):
         logger.debug("Updating function candidates")
@@ -129,6 +134,10 @@ class BottomRightWidget(SettingsWidget):
     def on_execute(self, function_call: FunctionCall):
         logger.debug(f"Executing function: {function_call}")
         self.state.signals.execute.emit(function_call)
+
+    def on_executed(self, func_call: FunctionCall):
+        self.history_list.append(func_call)
+        self.api_list.refresh()
 
     def update_list(self):
         view = self.state.current_view
@@ -192,3 +201,7 @@ class BottomRightWidget(SettingsWidget):
         QMessageBox.information(self,
                                 "Export success",
                                 f"Exported to {output_path:}\n* {'\n* '.join(names)}")
+
+    def add_to_inject(self):
+        selected = self.api_list.get_selected()
+        self.inject_list.append_many(selected)

@@ -8,6 +8,7 @@ from typing import Type
 import sys
 
 from PySide6.QtGui import QIcon, QPixmap
+from urllib3.exceptions import MaxRetryError
 
 from app_modeler.appium_helpers.AppiumInterface import AppiumInterface
 
@@ -212,3 +213,16 @@ def get_icon(name: str) -> QIcon:
     base_path = Path(getattr(sys, '_MEIPASS', non_binary_root_path))
     icon_path = base_path / "resources" /  name
     return QIcon(QPixmap(str(icon_path)))
+
+def get_human_friendly_error_message(exception: MaxRetryError) -> str:
+    """
+    Extracts a human-friendly message from a MaxRetryError exception.
+    :param exception: The MaxRetryError exception.
+    :return: A string with a human-friendly error message.
+    """
+    message = "Request failed after maximum retries."
+    if hasattr(exception, "pool"):
+        message += f" Host: {exception.pool.host}"
+    if hasattr(exception, "reason") and exception.reason:
+        message += f" Reason: {exception.reason}"
+    return message

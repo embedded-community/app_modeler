@@ -42,6 +42,9 @@ class FunctionListWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(self.view)
 
+    def refresh(self):
+        self.model.layoutResetFinished.emit()
+
     def execute_function(self, row: int):
         func = self.model.functions[row]
         logger.debug(f"Executing function '{func.function_name}' with args: {func.args} and kwargs: {func.kwargs}")
@@ -79,6 +82,10 @@ class FunctionListWidget(QWidget):
     def append(self, function: FunctionCall):
         self.model.append(function)
 
+    def append_many(self, functions: List[FunctionCall]):
+        for function in functions:
+            self.append(function)
+
     def to_dict(self):
         return [func.model_dump() for func in self.model.functions]
 
@@ -90,6 +97,10 @@ class FunctionListWidget(QWidget):
         """Inject all functions from given function list widget."""
         for function in function_list_widget.model.functions:
             self.model.update_args(function)
+
+    def get_selected(self):
+        selected_rows = self.view.selectionModel().selectedRows()
+        return [self.model.functions[row.row()] for row in selected_rows]
 
 if __name__ == "__main__":
     from PySide6.QtWidgets import QApplication

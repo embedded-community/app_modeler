@@ -5,6 +5,7 @@ from typing import Optional
 from PySide6.QtCore import QObject, Signal, QSettings
 from appium import webdriver
 from selenium.common import NoSuchDriverException, InvalidSessionIdException
+from urllib3.exceptions import MaxRetryError
 
 from app_modeler.ai.OpenAiAssistant import OpenAIAssistant
 from app_modeler.ai.AppiumClassGenerator import AppiumClassGenerator
@@ -17,7 +18,8 @@ from app_modeler.models.FunctionCall import FunctionCall
 from app_modeler.models.StartOptions import StartOptions
 from app_modeler.models.TestSession import TestSession, ClassData
 from app_modeler.models.WorkerThread import WorkerThread
-from app_modeler.utils.utils import load_module_from_code, generate_class_json_from_code
+from app_modeler.utils.utils import load_module_from_code, generate_class_json_from_code, \
+    get_human_friendly_error_message
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +101,10 @@ class ModelerState(QObject):
     def do_connect(self, start_options: StartOptions) -> bytes:
         self.signals.status_message.emit('Connecting to appium server')
         self._appium_options = start_options
-        self.driver = create_driver(start_options)
+        try:
+            self.driver = create_driver(start_options)
+        except MaxRetryError as error:
+            raise ConnectionError(get_human_friendly_error_message(error))
         token = start_options.app_settings.token
         base_url = start_options.app_settings.base_url
         model = start_options.app_settings.model

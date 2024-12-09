@@ -1,5 +1,5 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSplitter
+from PySide6.QtCore import Qt, Slot
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSplitter, QInputDialog
 
 from app_modeler.dialogs.ExceptionDialog import ExceptionDialog
 from app_modeler.dialogs.SettingsDIalog import SettingsDialog, AppSettingsWidget
@@ -69,3 +69,8 @@ class MainWindow(QMainWindow):
     def on_settings(self):
         dialog = SettingsDialog(self.state.settings, self._app_settings)
         dialog.exec()
+
+    @Slot(str, result=str)
+    def get_text_from_user(self, arg: str) -> str:
+        value, ok = QInputDialog.getText(self, "Input", f"Enter input for {arg}:")
+        return value if ok else ""
